@@ -161,6 +161,52 @@ namespace RobotCleaner
         }
     }
 
+    public class PerimeterHuggerStrategy : IStrategy
+    {
+        public void Clean(Robot robot)
+        {
+            int posX = 0;
+            int posY = 0;
+
+            robot.Move(posX, posY);
+            robot.CleanCurrentSpot();
+
+            // Right
+            for (int x = 0; x < robot.Map.Width; x++)
+            {
+                posX = x;
+
+                robot.Move(posX, posY);
+                robot.CleanCurrentSpot();
+            }
+
+            // Down
+            for (int y = 0; y < robot.Map.Height; y++)
+            {
+                posY = y;
+
+                robot.Move(posX, posY);
+                robot.CleanCurrentSpot();
+            }
+
+            // Left
+            for (int x = robot.Map.Width - 1; x >= 0; x--)
+            {
+                posX = x;
+                robot.Move(posX, posY);
+                robot.CleanCurrentSpot();
+            }
+
+            // Up
+            for (int y = robot.Map.Height - 1; y >= 0; y--)
+            {
+                posY = y;
+                robot.Move(posX, posY);
+                robot.CleanCurrentSpot();
+            }
+        }
+    }
+
     public class SpiralStrategy : IStrategy
     {
         public void Clean(Robot robot)
@@ -205,8 +251,8 @@ namespace RobotCleaner
         {
             Console.WriteLine("Initialize robot");
 
-
             IStrategy zigzag_strategy = new ZigzagStrategy();
+            IStrategy perimeter_hugger_strategy = new PerimeterHuggerStrategy();
             IStrategy spiral_strategy = new SpiralStrategy();
 
             Map map = new Map(9, 9);
@@ -215,9 +261,10 @@ namespace RobotCleaner
             map.AddDirt(5, 3);
             map.AddDirt(1, 8);
             map.AddObstacle(8, 4);
+            map.AddObstacle(0, 4);
             map.AddDirt(8, 8);
 
-            Robot robot = new Robot(map, spiral_strategy);
+            Robot robot = new Robot(map, perimeter_hugger_strategy);
 
             robot.StartCleaning();
 
@@ -225,4 +272,3 @@ namespace RobotCleaner
         }
     }
 }
-
