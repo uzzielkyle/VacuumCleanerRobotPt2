@@ -1,4 +1,5 @@
 ﻿using System;
+
 namespace RobotCleaner
 {
     public class Map
@@ -160,6 +161,43 @@ namespace RobotCleaner
         }
     }
 
+    public class SpiralStrategy : IStrategy
+    {
+        public void Clean(Robot robot)
+        {
+            int[,] directions = { { 1, 0 }, { 0, 1 }, { -1, 0 }, { 0, -1 } };
+            int segmentLength = 1;
+            int direction = 0;
+
+            int startX = (robot.Map.Width - 1) / 2;
+            int startY = (robot.Map.Height - 1) / 2;
+
+            int posX = startX;
+            int posY = startY;
+
+            robot.Move(posX, posY);
+            robot.CleanCurrentSpot();
+
+            while (segmentLength <= Math.Min(robot.Map.Width, robot.Map.Height))
+            {
+                int step = 0;
+                while (step < segmentLength)
+                {
+                    posX += directions[direction, 0];
+                    posY += directions[direction, 1];
+
+                    robot.Move(posX, posY);
+                    robot.CleanCurrentSpot();
+
+                    step++;
+                }
+
+                direction = (direction + 1) % 4;
+                if (direction % 2 == 0) segmentLength++;
+            }
+        }
+    }
+
     public class Program
     {
 
@@ -169,17 +207,17 @@ namespace RobotCleaner
 
 
             IStrategy zigzag_strategy = new ZigzagStrategy();
+            IStrategy spiral_strategy = new SpiralStrategy();
 
-            Map map = new Map(20, 10);
+            Map map = new Map(9, 9);
             // map.Display( 10,10);
 
             map.AddDirt(5, 3);
-            map.AddDirt(10, 8);
-            map.AddObstacle(2, 5);
-            map.AddObstacle(12, 1);
-            map.Display(11, 8);
+            map.AddDirt(1, 8);
+            map.AddObstacle(8, 4);
+            map.AddDirt(8, 8);
 
-            Robot robot = new Robot(map, zigzag_strategy);
+            Robot robot = new Robot(map, spiral_strategy);
 
             robot.StartCleaning();
 
